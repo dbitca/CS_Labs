@@ -43,63 +43,59 @@ public static String CircularShift(String input, int numBits)
         return keys;
     }
     //perform xor on 2 hexadecimal strings
-   public static String xor(String a, String b)
+   public static String xor(String exp_right, String key)
     {
-        // hexadecimal to decimal(base 10)
-        long t_a = Long.parseUnsignedLong(a, 16);
-        // hexadecimal to decimal(base 10)
-        long t_b = Long.parseUnsignedLong(b, 16);
-        // xor
-        t_a = t_a ^ t_b;
-        // decimal to hexadecimal
-        a = Long.toHexString(t_a);
-        // prepend 0's to maintain length
-        while (a.length() < b.length())
-            a = "0" + a;
-        return a;
+        long first = Long.parseUnsignedLong(exp_right, 16);
+        long second = Long.parseUnsignedLong(key, 16);
+        first = first ^ second;
+        exp_right = Long.toHexString(first);
+        while (exp_right.length() < key.length())
+            exp_right = "0" + exp_right;
+        return exp_right;
     }
 
+
     // s-box lookup : Step 3
-   public static String sBox(String inputkey)
+   public static String sBox(String input_bits)
     {
-        String outputkey = "";
-        inputkey = hextoBin(inputkey);
+        String S_value = "";
+        input_bits = hextoBin(input_bits);
         for (int i = 0; i < 48; i += 6) {
-            String temp = inputkey.substring(i, i + 6);
+            String temp = input_bits.substring(i, i + 6);
             int num = i / 6;
             int row = Integer.parseInt(
                     temp.charAt(0) + "" + temp.charAt(5),
                     2);
             int col = Integer.parseInt(
                     temp.substring(1, 5), 2);
-            outputkey += Integer.toHexString(
+            S_value += Integer.toHexString(
                     sbox[num][row][col]);
         }
-        return outputkey;
+        return S_value;
     }
    public static String round(String input, String key, int num)
     {
         // split subkey
-        String left = input.substring(0, 8);
-        String temp = input.substring(8, 16);
-        String right = temp;
+        String left_substring = input.substring(0, 8);
+        String temp_right = input.substring(8, 16);
+        String right_substring = temp_right;
         // Expansion permutation
-        temp = permutation(EP, temp);
+        temp_right = permutation(EP, temp_right);
         // xor temp and round key
-        temp = xor(temp, key);
+        temp_right = xor(temp_right, key);
         // lookup in s-box table
-        temp = sBox(temp);
+        temp_right = sBox(temp_right);
         // Straight D-box
-        temp = permutation(P, temp);
+        temp_right = permutation(P, temp_right);
         // xor
-        left = xor(left, temp);
+        left_substring = xor(left_substring, temp_right);
         System.out.println("Round " + (num + 1) + " "
-                + right.toUpperCase() + " "
-                + left.toUpperCase() + " "
+                + right_substring.toUpperCase() + " "
+                + left_substring.toUpperCase() + " "
                 + key.toUpperCase());
 
         // swapper
-        return right + left;
+        return right_substring + left_substring;
     }
 
 }
